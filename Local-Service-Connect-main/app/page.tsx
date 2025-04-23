@@ -46,7 +46,16 @@ export default function LandingPage() {
     return () => window.removeEventListener("resize", handleResize)
   }, [])
   const user = localStorage.getItem("user");
-  const storedUser = user ? JSON.parse(user) : null;
+  let storedUser = null;
+  
+  try {
+    if (user && user !== "undefined") {
+      storedUser = JSON.parse(user);
+    }
+  } catch (error) {
+    console.error("Failed to parse user JSON:", error);
+  } 
+  
   console.log("stored user ",storedUser);
   const services = [
     {
@@ -80,20 +89,28 @@ export default function LandingPage() {
       link: "/services/gardening",
     },
   ]
-  const handlelogout =async() => {
+  const handlelogout = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/v1/users/logout",{withCredentials:true});
-      if(response.data.success){
+      const response = await axios.get(
+        `https://major-backend-f0nm.onrender.com/api/v1/users/logout`,
+        { withCredentials: true }
+      );
+  
+      if (response?.data?.success) {
         localStorage.removeItem("user");
         toast.success("Logout done");
         setTimeout(() => {
           window.location.reload();
         }, 500);
+      } else {
+        toast.error("Logout failed: Invalid response");
       }
     } catch (error) {
-      toast.error("Logout failed");
+      console.error("Logout error: ", error);
+      toast.error("Logout failed: Network or server error");
     }
-  }
+  };
+  
   const flipWords = [
     "Connecting You to Trusted Local Experts!",
     "Quick, Reliable, and Hassle-Free Home Services!",

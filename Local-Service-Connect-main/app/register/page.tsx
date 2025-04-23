@@ -81,10 +81,11 @@ export default function RegisterPage() {
         }
 
         try {
-            const response = await fetch("http://localhost:5000/api/v1/users/register", {
+            const response = await fetch("https://major-backend-f0nm.onrender.com/api/v1/users/register", {
                 method: "POST",
                 body: apiFormData,
             });
+            //"http://localhost:5000/api/v1/users/register"
             console.log(response);
             const data = await response.json();
 

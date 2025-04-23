@@ -45,7 +45,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
     const fetchWorkers = async ():Promise<any> => {
       try {
         console.log("function activated")
-       const {data}= await axios.get<any>(`http://localhost:5000/api/v1/worker/getcategory/${params.slug}`);
+       const {data}= await axios.get<any>(`https://major-backend-f0nm.onrender.com/api/v1/worker/getcategory/${params.slug}`);
         
        console.log((data.workers))
         setWorkers(data.workers);

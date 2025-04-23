@@ -22,7 +22,7 @@ export default function WorkersPage() {
   useEffect(() => {
     const fetchWorkers = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/v1/worker/getall")
+        const response = await fetch("https://major-backend-f0nm.onrender.com/api/v1/worker/getall")
         if (!response.ok) throw new Error("Failed to fetch data")
         
         const data = await response.json()

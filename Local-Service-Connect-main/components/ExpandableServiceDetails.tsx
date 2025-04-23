@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { LayoutGrid, List, SlidersHorizontal, ArrowLeft } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import axios from "axios";
 
 interface Worker {
   _id:string;
@@ -35,11 +36,14 @@ export function ExpandableServiceDetails({ service: propService }: { service: Se
   const fetchWorkerDetails = async (workerId: string) => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:5000/api/v1/worker/getbyid/${workerId}');
-      console.log(response);
-      const data = await response.json();
-      console.log(data);
-      setWorkerDetails(data);
+      const response = await axios.get(
+        `https://major-backend-f0nm.onrender.com/api/v1/worker/getbyid/${workerId}`,
+        {
+          withCredentials: true,
+        }
+      );
+      console.log(response.data);
+      setWorkerDetails(response.data);
     } catch (error) {
       console.error("Error fetching worker details:", error);
     } finally {

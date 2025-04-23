@@ -30,7 +30,7 @@ export default function UsersPage() {
         const fetchUsers = async () => {
             try {
                 const response = await fetch(
-                    "http://localhost:5000/api/v1/users/getalluser",
+                    "https://major-backend-f0nm.onrender.com/api/v1/users/getalluser",
                 );
                 if (!response.ok) {
                     throw new Error("Failed to fetch users");
