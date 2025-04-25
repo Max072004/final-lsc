@@ -60,6 +60,12 @@ const data = [
 export default function AdminDashboard() {
   const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    router.push("/login");
+  };
+
   //code to regirect to login page if user is not admin
   console.log("object");
   useEffect(() => {
@@ -143,23 +149,11 @@ export default function AdminDashboard() {
               </h1>
             </div>
             <div className="flex items-center space-x-4">
-              <div className="relative hidden sm:block">
-                <Input
-                  type="search"
-                  placeholder="Search..."
-                  className="pl-10 pr-4 py-2 rounded-full border-2 border-indigo-100 focus:border-indigo-500 focus:ring-indigo-500 transition-all duration-300"
-                />
-                <Search
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-indigo-400"
-                  size={18}
-                />
-              </div>
               <Button
-                variant="ghost"
-                size="icon"
-                className="hover:rotate-12 transition-transform duration-300"
+                onClick={handleLogout}
+                className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white px-4 py-2 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
               >
-                <Bell size={20} />
+                Logout
               </Button>
               <div className="w-8 h-8 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-full shadow-lg hover:scale-110 transition-transform duration-300"></div>
             </div>
