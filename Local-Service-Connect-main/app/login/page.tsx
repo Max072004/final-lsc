@@ -48,20 +48,24 @@ export default function LoginPage() {
         console.log("Login successful:", data.user);
         toast.success("Login successful");
         const { role, subscription, free_Count } = data.user;
-
-        setTimeout(() => {
-          if (subscription.status === false && free_Count >= 3) {
-            if (role === "customer") {
-              router.push("/plans/customer");
-            } else if (role === "worker") {
-              router.push("/plans/worker");
-            } else {
-              router.push("/");
-            }
-          } else {
-            router.push("/");
-          }
-        }, 500);
+        if (data.user.role === "admin") {
+          router.push("/admin/dashboard");
+        } else {
+           setTimeout(() => {
+             if (subscription.status === false && free_Count >= 3) {
+               if (role === "customer") {
+                 router.push("/plans/customer");
+               } else if (role === "worker") {
+                 router.push("/plans/worker");
+               } else {
+                 router.push("/");
+               }
+             } else {
+               router.push("/");
+             }
+           }, 500); 
+        }
+        
       } else {
         setError(data.message || "Login failed");
         console.error("Login failed:", data.message);
@@ -74,7 +78,6 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
-  
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-100 to-indigo-200 p-4">
