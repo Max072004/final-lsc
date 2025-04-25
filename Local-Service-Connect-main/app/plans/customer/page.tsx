@@ -4,9 +4,54 @@ import { useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Check } from "lucide-react"
+import { useRouter } from "next/navigation"
+import axios from "axios"
+import { useEffect } from "react"
 
 export default function CustomerSubscription() {
-  const [selectedPlan, setSelectedPlan] = useState<string>("")
+  const [selectedPlan, setSelectedPlan] = useState<string>("");
+  const router = useRouter();
+  const handlePlanSelection = async (priceId: string) => {
+    try {
+      const response = await axios.post(
+        "https://major-backend-f0nm.onrender.com/api/v1/payment/create-subscription-session",
+        { priceId },
+        { withCredentials: true }
+      );
+
+      if (response.data?.checkout_url) {
+        router.push(response.data.checkout_url);
+      } else {
+        alert("Failed to create checkout session");
+      }
+    } catch (error) {
+      console.error("Checkout error:", error);
+      alert("Something went wrong while processing your subscription.");
+    }
+  };
+
+  const getCurrentUser = async () => {
+    const response = await axios.get(
+      "https://major-backend-f0nm.onrender.com/api/v1/users/getcurrentuser",
+      { withCredentials: true }
+    );
+    console.log(response.data.user);
+    localStorage.setItem("user", JSON.stringify(response.data.user));
+  };
+  useEffect(() => {
+    getCurrentUser();
+    const user = localStorage.getItem("user");
+
+    if (user) {
+      const parsedUser = JSON.parse(user);
+      console.log(parsedUser?.subscription?.status); // ✅ log status safely
+
+      const { role, subscription } = parsedUser;
+      if (subscription?.status === true) {
+        router.push("/");
+      }
+    }
+  }, []);
 
   const plans = [
     {
@@ -14,16 +59,22 @@ export default function CustomerSubscription() {
       name: "Monthly Plan",
       price: "₹50",
       duration: "per month",
-      features: ["Access to all services", "Priority support", "Basic features"],
+      priceId: "price_1RHlmhP9Fvwn1YOPsLkBfSzM",
+      features: [
+        "Access to all services",
+        "Priority support",
+        "Basic features",
+      ],
     },
     {
       id: "yearly",
       name: "Yearly Plan",
       price: "₹250",
       duration: "per year",
+      priceId: "price_1RHloUP9Fvwn1YOP33jmar6E",
       features: ["All monthly features", "20% discount", "Premium support"],
     },
-  ]
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-100 to-indigo-200 p-8">
@@ -62,7 +113,10 @@ export default function CustomerSubscription() {
                 ))}
               </ul>
               <Button
-                onClick={() => setSelectedPlan(plan.id)}
+                onClick={() => {
+                  setSelectedPlan(plan.id); 
+                  handlePlanSelection(plan.priceId);
+                }}
                 className={`w-full py-6 rounded-lg text-lg font-semibold ${
                   selectedPlan === plan.id
                     ? "bg-gradient-to-r from-purple-500 to-indigo-600 text-white hover:from-purple-600 hover:to-indigo-700"
@@ -74,21 +128,6 @@ export default function CustomerSubscription() {
             </div>
           ))}
         </div>
-
-        {selectedPlan && (
-          <div className="mt-12 text-center">
-            <Button
-              className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white hover:from-purple-600 hover:to-indigo-700 px-8 py-6 text-lg font-semibold rounded-xl"
-              onClick={() => {
-                // Handle subscription checkout
-                alert(`Proceeding to checkout for ${selectedPlan} plan`)
-              }}
-            >
-              Proceed to Checkout
-            </Button>
-          </div>
-        )}
-
         <div className="mt-16 bg-white/80 p-6 rounded-xl max-w-4xl mx-auto">
           <h3 className="text-2xl font-bold mb-4 text-indigo-900">Subscription Benefits</h3>
           <div className="grid md:grid-cols-2 gap-6">

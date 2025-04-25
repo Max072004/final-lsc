@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { toast, ToastContainer } from "react-toastify";
+import { AxiosError } from "axios";
+import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -26,6 +28,7 @@ import {
   Send,
 } from "lucide-react";
 import axios from "axios";
+import { Router } from "next/router";
 
 interface Worker {
   _id: string;
@@ -81,6 +84,7 @@ export function ExpandableServiceDetails({
   const [newReviewRating, setNewReviewRating] = useState(5);
   const [newReviewComment, setNewReviewComment] = useState("");
   const [submittingReview, setSubmittingReview] = useState(false);
+  const router = useRouter();
   const fetchWorkerDetails = async (workerId: string) => {
     setLoading(true);
     try {
@@ -92,8 +96,29 @@ export function ExpandableServiceDetails({
       );
       console.log(response.data.worker);
       setWorkerDetails(response.data.worker);
-    } catch (error) {
-      console.error("Error fetching worker details:", error);
+    } catch (error: unknown) {
+      if (error instanceof AxiosError && error.response) {
+        if (error.response.status === 403) {
+          // Ensure the path and domain match those used when setting the cookie
+          document.cookie =
+            "accessToken=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; secure; samesite=strict";
+
+          localStorage.removeItem("user");
+          setWorkerDetails(null);
+          setSelectedWorker(null);
+          toast.error(`${error.response.data.message}`);
+          setTimeout(() => {
+            router.push("/");
+          }, 700);
+        } else if (error.response.status === 401) {
+          toast.error("Please login to continue");
+          setTimeout(() => {
+            router.push("/login");
+          }, 600);
+        }
+      } else {
+        toast.error("An error occured");
+      }
     } finally {
       setLoading(false);
     }
