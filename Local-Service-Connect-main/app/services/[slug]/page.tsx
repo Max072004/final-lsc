@@ -1,11 +1,13 @@
-"use client"
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { ServiceSidebar } from "@/components/ServiceSidebar"
-import { ExpandableServiceDetails } from "@/components/ExpandableServiceDetails"
-import { Menu } from "lucide-react"
-import axios from 'axios'
+"use client";
+import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { ServiceSidebar } from "@/components/ServiceSidebar";
+import { ExpandableServiceDetails } from "@/components/ExpandableServiceDetails";
+import { Menu } from "lucide-react";
+import axios from "axios";
+
 const services = {
   plumbing: {
     title: "Plumbing",
@@ -19,7 +21,7 @@ const services = {
     description:
       "Professional cleaning services to keep your space spotless. Our team uses eco-friendly products and advanced techniques to ensure a thorough clean.",
   },
-  electrical: {
+  electrician: {
     title: "Electrical",
     src: "/electrical1.jpg",
     description:
@@ -31,33 +33,48 @@ const services = {
     description:
       "Transform your space with our professional painting services. Our expert painters use high-quality materials to deliver stunning results for both interior and exterior projects.",
   },
+  carpenter: {
+    title: "Carpentry",
+    src: "/carpenter1.jpg",
+    description:
+      "Expert carpentry services for custom furniture and repairs. Our skilled craftsmen bring your vision to life with precision and care.",
+  },
+  gardening: {
+    title: "Gardening",
+    src: "/gardening1.jpg",
+    description:
+      "Professional gardening services to enhance your outdoor space. Our team specializes in landscaping, planting, and maintenance to create a beautiful garden.",
+  },
 };
 
-export default function ServicePage({ params }: { params: { slug: string } }) {
+export default function ServicePage() {
+  const { slug } = useParams() as { slug: string };
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [workers, setWorkers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const service = services[params.slug as keyof typeof services];
+
+  const service = services[slug as keyof typeof services];
 
   useEffect(() => {
-    const fetchWorkers = async ():Promise<any> => {
+    const fetchWorkers = async (): Promise<any> => {
       try {
-        console.log("function activated")
-       const {data}= await axios.get<any>(`https://major-backend-f0nm.onrender.com/api/v1/worker/getcategory/${params.slug}`);
-        
-       console.log((data.workers))
+        console.log("function activated");
+        const { data } = await axios.get<any>(
+          `https://major-backend-f0nm.onrender.com/api/v1/worker/getcategory/${slug}`
+        );
+        console.log(data.workers);
         setWorkers(data.workers);
-      } catch (err : any) {
+      } catch (err: any) {
         setError(err.message);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchWorkers();
-  }, [params.slug]);
+    if (slug) fetchWorkers();
+  }, [slug]);
 
   useEffect(() => {
     const checkIsMobile = () => {
@@ -91,18 +108,25 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
               <Menu size={24} />
             </button>
           ) : (
-            <Link href="/" className="text-white hover:text-purple-200 transition-colors duration-300">
+            <Link
+              href="/"
+              className="text-white hover:text-purple-200 transition-colors duration-300"
+            >
               <Button variant="ghost" className="text-lg font-semibold">
                 ← All Services
               </Button>
             </Link>
           )}
-          <h1 className="text-2xl md:text-3xl font-bold text-white">{service.title}</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-white">
+            {service.title}
+          </h1>
           <div className="w-[100px]" />
         </header>
-        <main className="p-4 md:p-8 max-w-6xl mx-auto space-y-8">
+        <main className="p-4 md:p-8  mx-auto space-y-8">
           <div className="bg-white rounded-lg shadow-xl p-6 md:p-8 border border-purple-200">
-            <h2 className="text-3xl font-bold mb-6 text-center text-indigo-900">Service Details</h2>
+            <h2 className="text-3xl font-bold mb-6 text-center text-indigo-900">
+              Service Details
+            </h2>
             <ExpandableServiceDetails service={serviceWithWorkers} />
             <div className="mt-8 text-center">
               <Link href="/" className="inline-block">

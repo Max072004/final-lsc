@@ -1,62 +1,62 @@
-"use client"
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { motion } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { HoverEffect } from "@/components/HoverEffect"
-import { FlipWords } from "@/components/FlipWords"
-import AnimatedButton from "@/components/AnimatedButton"
-import { Menu, X } from "lucide-react"
-import { useRouter } from "next/navigation"
-import axios from "axios"
-import { toast,ToastContainer } from "react-toastify";
+"use client";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { HoverEffect } from "@/components/HoverEffect";
+import { FlipWords } from "@/components/FlipWords";
+import AnimatedButton from "@/components/AnimatedButton";
+import { Menu, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function LandingPage() {
-  const router = useRouter()
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [scrollY, setScrollY] = useState(0)
+  const router = useRouter();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
 
   const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen)
-  }
+    setIsMenuOpen(!isMenuOpen);
+  };
 
   const scrollToSection = (sectionId: string) => {
-    const section = document.getElementById(sectionId)
+    const section = document.getElementById(sectionId);
     if (section) {
-      section.scrollIntoView({ behavior: "smooth" })
+      section.scrollIntoView({ behavior: "smooth" });
     }
-    setIsMenuOpen(false)
-  }
+    setIsMenuOpen(false);
+  };
 
   useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY)
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
+    const handleScroll = () => setScrollY(window.scrollY);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth > 768) {
-        setIsMenuOpen(false)
+        setIsMenuOpen(false);
       }
-    }
+    };
 
-    window.addEventListener("resize", handleResize)
-    return () => window.removeEventListener("resize", handleResize)
-  }, [])
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
   const user = localStorage.getItem("user");
   let storedUser = null;
-  
+
   try {
     if (user && user !== "undefined") {
       storedUser = JSON.parse(user);
     }
   } catch (error) {
     console.error("Failed to parse user JSON:", error);
-  } 
-  
-  console.log("stored user ",storedUser);
+  }
+
+  console.log("stored user ", storedUser);
   const services = [
     {
       title: "Plumbing",
@@ -65,8 +65,9 @@ export default function LandingPage() {
     },
     {
       title: "Electrical",
-      description: "Professional electrical work to keep your home powered and safe.",
-      link: "/services/electrical",
+      description:
+        "Professional electrical work to keep your home powered and safe.",
+      link: "/services/electrician",
     },
     {
       title: "Cleaning",
@@ -75,27 +76,30 @@ export default function LandingPage() {
     },
     {
       title: "Carpentry",
-      description: "Skilled carpentry for repairs, renovations, and custom projects.",
-      link: "/services/carpentry",
+      description:
+        "Skilled carpentry for repairs, renovations, and custom projects.",
+      link: "/services/carpenter",
     },
     {
       title: "Painting",
-      description: "Transform your space with our professional painting services.",
+      description:
+        "Transform your space with our professional painting services.",
       link: "/services/painting",
     },
     {
       title: "Gardening",
-      description: "Keep your outdoor areas beautiful with our gardening expertise.",
+      description:
+        "Keep your outdoor areas beautiful with our gardening expertise.",
       link: "/services/gardening",
     },
-  ]
+  ];
   const handlelogout = async () => {
     try {
       const response = await axios.get(
         `https://major-backend-f0nm.onrender.com/api/v1/users/logout`,
         { withCredentials: true }
       );
-  
+
       if (response?.data?.success) {
         localStorage.removeItem("user");
         toast.success("Logout done");
@@ -110,13 +114,13 @@ export default function LandingPage() {
       toast.error("Logout failed: Network or server error");
     }
   };
-  
+
   const flipWords = [
     "Connecting You to Trusted Local Experts!",
     "Quick, Reliable, and Hassle-Free Home Services!",
     "Find. Hire. Get It Done!",
     "Your One-Stop Solution for Home Services!",
-  ]
+  ];
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-purple-100 to-indigo-200 text-gray-800">
@@ -154,13 +158,20 @@ export default function LandingPage() {
             </button>
           </nav>
           <div className="hidden md:block">
-            {storedUser ?(<Button onClick={handlelogout} className="relative overflow-hidden group bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold px-6 py-2.5 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
-              <span className="relative z-10">Logout</span>
-              <div className="absolute inset-0 bg-white/20 group-hover:bg-white/30 transition-colors duration-300"></div>
-            </Button>) :(<AnimatedButton className="relative overflow-hidden group bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold px-6 py-2.5 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
-              <span className="relative z-10">Login</span>
-              <div className="absolute inset-0 bg-white/20 group-hover:bg-white/30 transition-colors duration-300"></div>
-            </AnimatedButton>)}
+            {storedUser ? (
+              <Button
+                onClick={handlelogout}
+                className="relative overflow-hidden group bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold px-6 py-2.5 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+              >
+                <span className="relative z-10">Logout</span>
+                <div className="absolute inset-0 bg-white/20 group-hover:bg-white/30 transition-colors duration-300"></div>
+              </Button>
+            ) : (
+              <AnimatedButton className="relative overflow-hidden group bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold px-6 py-2.5 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+                <span className="relative z-10">Login</span>
+                <div className="absolute inset-0 bg-white/20 group-hover:bg-white/30 transition-colors duration-300"></div>
+              </AnimatedButton>
+            )}
           </div>
           <button className="md:hidden text-white" onClick={toggleMenu}>
             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -222,7 +233,8 @@ export default function LandingPage() {
                 transition={{ duration: 0.8, delay: 0.2 }}
                 className="mt-5 max-w-xl mx-auto text-xl text-indigo-700"
               >
-                Connect with skilled local professionals for all your home service needs.
+                Connect with skilled local professionals for all your home
+                service needs.
               </motion.p>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -243,7 +255,10 @@ export default function LandingPage() {
           <div className="absolute inset-0 bg-gradient-to-br from-purple-200 to-indigo-300 opacity-50"></div>
         </motion.section>
 
-        <section id="services" className="py-16 bg-gradient-to-br from-purple-100 to-indigo-200">
+        <section
+          id="services"
+          className="py-16 bg-gradient-to-br from-purple-100 to-indigo-200"
+        >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
@@ -257,7 +272,10 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section id="how-it-works" className="bg-gradient-to-br from-purple-300 to-indigo-400 py-16">
+        <section
+          id="how-it-works"
+          className="bg-gradient-to-br from-purple-300 to-indigo-400 py-16"
+        >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
@@ -277,11 +295,20 @@ export default function LandingPage() {
             </motion.h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {[
-                { title: "Book a Service", description: "Choose the service you need and select a convenient time." },
-                { title: "Get Matched", description: "We'll connect you with a skilled local professional." },
+                {
+                  title: "Book a Service",
+                  description:
+                    "Choose the service you need and select a convenient time.",
+                },
+                {
+                  title: "Get Matched",
+                  description:
+                    "We'll connect you with a skilled local professional.",
+                },
                 {
                   title: "Job Done",
-                  description: "Your service provider arrives and completes the job to your satisfaction.",
+                  description:
+                    "Your service provider arrives and completes the job to your satisfaction.",
                 },
               ].map((step, index) => (
                 <motion.div
@@ -301,15 +328,22 @@ export default function LandingPage() {
                       {index + 1}
                     </div>
                   </motion.div>
-                  <h3 className="text-xl font-semibold text-indigo-900 mb-2 text-center">{step.title}</h3>
-                  <p className="text-indigo-700 text-center">{step.description}</p>
+                  <h3 className="text-xl font-semibold text-indigo-900 mb-2 text-center">
+                    {step.title}
+                  </h3>
+                  <p className="text-indigo-700 text-center">
+                    {step.description}
+                  </p>
                 </motion.div>
               ))}
             </div>
           </div>
         </section>
 
-        <section id="contact" className="py-16 bg-gradient-to-br from-purple-100 to-indigo-200">
+        <section
+          id="contact"
+          className="py-16 bg-gradient-to-br from-purple-100 to-indigo-200"
+        >
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
@@ -327,7 +361,10 @@ export default function LandingPage() {
             >
               <form className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium mb-1 text-indigo-700">
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-medium mb-1 text-indigo-700"
+                  >
                     Name
                   </label>
                   <input
@@ -338,7 +375,10 @@ export default function LandingPage() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium mb-1 text-indigo-700">
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium mb-1 text-indigo-700"
+                  >
                     Email
                   </label>
                   <input
@@ -349,7 +389,10 @@ export default function LandingPage() {
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <label htmlFor="message" className="block text-sm font-medium mb-1 text-indigo-700">
+                  <label
+                    htmlFor="message"
+                    className="block text-sm font-medium mb-1 text-indigo-700"
+                  >
                     Message
                   </label>
                   <textarea
@@ -376,12 +419,20 @@ export default function LandingPage() {
       <footer className="bg-gradient-to-r from-purple-400 to-indigo-500 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-white mb-4 md:mb-0">&copy; 2025 LOCAL SERVICE CONNECT. All rights reserved.</p>
+            <p className="text-white mb-4 md:mb-0">
+              &copy; 2025 LOCAL SERVICE CONNECT. All rights reserved.
+            </p>
             <div className="flex space-x-6">
-              <Link href="#" className="text-white hover:text-purple-200 transition-colors duration-300">
+              <Link
+                href="#"
+                className="text-white hover:text-purple-200 transition-colors duration-300"
+              >
                 Privacy Policy
               </Link>
-              <Link href="#" className="text-white hover:text-purple-200 transition-colors duration-300">
+              <Link
+                href="#"
+                className="text-white hover:text-purple-200 transition-colors duration-300"
+              >
                 Terms of Service
               </Link>
             </div>
@@ -389,6 +440,5 @@ export default function LandingPage() {
         </div>
       </footer>
     </div>
-  )
+  );
 }
-
