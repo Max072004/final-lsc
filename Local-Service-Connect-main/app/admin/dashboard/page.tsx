@@ -1,46 +1,20 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
-import {
-  ArrowRight,
-  Users,
-  Briefcase,
-  DollarSign,
-  Calendar,
-  Settings,
-  Bell,
-  Search,
-  Menu,
-} from "lucide-react";
-import Link from "next/link";
+import { useEffect, useState } from "react"
+import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
+import { ArrowRight, Users, Briefcase, DollarSign, Calendar, Settings, Menu } from "lucide-react"
+import Link from "next/link"
 
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  TableHead,
-  TableRow,
-  TableHeader,
-  TableCell,
-  TableBody,
-  Table,
-} from "@/components/ui/table";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
-import { ProfileSettingsDialog } from "@/components/ProfileSettingsDialog";
-import { Dialog, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { TableHead, TableRow, TableHeader, TableCell, TableBody, Table } from "@/components/ui/table"
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
+import { ProfileSettingsDialog } from "@/components/ProfileSettingsDialog"
+import { Dialog, DialogTrigger } from "@/components/ui/dialog"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { useRouter } from "next/navigation"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Separator } from "@/components/ui/separator"
 
 const data = [
   { name: "Jan", total: Math.floor(Math.random() * 5000) + 1000 },
@@ -55,39 +29,58 @@ const data = [
   { name: "Oct", total: Math.floor(Math.random() * 5000) + 1000 },
   { name: "Nov", total: Math.floor(Math.random() * 5000) + 1000 },
   { name: "Dec", total: Math.floor(Math.random() * 5000) + 1000 },
-];
+]
 
 export default function AdminDashboard() {
-  const router = useRouter();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const router = useRouter()
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [adminUser, setAdminUser] = useState(null)
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
-    router.push("/login");
-  };
+    localStorage.removeItem("user")
+    router.push("/login")
+  }
 
-  //code to regirect to login page if user is not admin
-  console.log("object");
+  //code to redirect to login page if user is not admin
   useEffect(() => {
-    const user = localStorage.getItem("user");
-    console.log(user);
+    const user = localStorage.getItem("user")
     if (user) {
-      const parsedUser = JSON.parse(user);
+      const parsedUser = JSON.parse(user)
       if (parsedUser.role !== "admin") {
-        router.push("/login");
+        router.push("/login")
+      } else {
+        setAdminUser(parsedUser)
       }
     } else {
-      router.push("/login");
+      router.push("/login")
     }
-  }, []);
+  }, [router])
 
   const Sidebar = () => (
-    <div className="w-64 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 shadow-xl h-full">
-      <div className="p-4 flex items-center space-x-2">
-        <div className="w-8 h-8 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-lg shadow-lg animate-pulse"></div>
+    <div className="w-64 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 shadow-xl h-full flex flex-col">
+      <div className="p-4">
         <h2 className="text-xl font-bold text-white">Admin Panel</h2>
       </div>
-      <nav className="mt-6">
+
+      {/* Admin Profile Section */}
+      {adminUser && (
+        <div className="px-4 py-3 bg-gray-800/50 mb-4">
+          <div className="flex items-center space-x-3">
+            <Avatar className="h-10 w-10 border-2 border-indigo-500">
+              <AvatarImage src={adminUser.profilePic?.url || ""} alt={adminUser.name} />
+              <AvatarFallback className="bg-indigo-600 text-white">{adminUser.name?.charAt(0) || "A"}</AvatarFallback>
+            </Avatar>
+            <div className="flex flex-col">
+              <span className="text-sm font-medium text-white">{adminUser.name}</span>
+              <span className="text-xs text-gray-400">{adminUser.email}</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <Separator className="bg-gray-700 my-2" />
+
+      <nav className="mt-2 flex-1">
         {[
           { name: "Overview", href: "/admin/dashboard" },
           { name: "Workers", href: "/admin/workers" },
@@ -116,7 +109,7 @@ export default function AdminDashboard() {
         </Dialog>
       </nav>
     </div>
-  );
+  )
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -149,13 +142,23 @@ export default function AdminDashboard() {
               </h1>
             </div>
             <div className="flex items-center space-x-4">
+              {adminUser && (
+                <div className="hidden md:flex items-center space-x-3 mr-2">
+                  <span className="text-sm font-medium">Welcome, {adminUser.name}</span>
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={adminUser.profilePic?.url || ""} alt={adminUser.name} />
+                    <AvatarFallback className="bg-indigo-600 text-white">
+                      {adminUser.name?.charAt(0) || "A"}
+                    </AvatarFallback>
+                  </Avatar>
+                </div>
+              )}
               <Button
                 onClick={handleLogout}
                 className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white px-4 py-2 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
               >
                 Logout
               </Button>
-              <div className="w-8 h-8 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-full shadow-lg hover:scale-110 transition-transform duration-300"></div>
             </div>
           </div>
         </header>
@@ -198,20 +201,14 @@ export default function AdminDashboard() {
                   key={index}
                   className="overflow-hidden transform hover:scale-105 transition-all duration-300 hover:shadow-xl"
                 >
-                  <div
-                    className={`absolute inset-0 bg-gradient-to-r ${item.color} opacity-10`}
-                  ></div>
+                  <div className={`absolute inset-0 bg-gradient-to-r ${item.color} opacity-10`}></div>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      {item.title}
-                    </CardTitle>
+                    <CardTitle className="text-sm font-medium">{item.title}</CardTitle>
                     <item.icon className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">{item.value}</div>
-                    <p className="text-xs text-muted-foreground">
-                      {item.change} from last month
-                    </p>
+                    <p className="text-xs text-muted-foreground">{item.change} from last month</p>
                   </CardContent>
                 </Card>
               ))}
@@ -234,13 +231,7 @@ export default function AdminDashboard() {
                 >
                   <ResponsiveContainer width="100%" height={350}>
                     <BarChart data={data}>
-                      <XAxis
-                        dataKey="name"
-                        stroke="#888888"
-                        fontSize={12}
-                        tickLine={false}
-                        axisLine={false}
-                      />
+                      <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
                       <YAxis
                         stroke="#888888"
                         fontSize={12}
@@ -261,23 +252,9 @@ export default function AdminDashboard() {
                         className="transition-all duration-300 hover:brightness-110"
                       />
                       <defs>
-                        <linearGradient
-                          id="colorGradient"
-                          x1="0"
-                          y1="0"
-                          x2="0"
-                          y2="1"
-                        >
-                          <stop
-                            offset="0%"
-                            stopColor="#4F46E5"
-                            stopOpacity={0.8}
-                          />
-                          <stop
-                            offset="100%"
-                            stopColor="#4F46E5"
-                            stopOpacity={0.3}
-                          />
+                        <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#4F46E5" stopOpacity={0.8} />
+                          <stop offset="100%" stopColor="#4F46E5" stopOpacity={0.3} />
                         </linearGradient>
                       </defs>
                     </BarChart>
@@ -290,9 +267,7 @@ export default function AdminDashboard() {
             <Card className="transform hover:shadow-xl transition-all duration-300">
               <CardHeader>
                 <CardTitle>Recent Activities</CardTitle>
-                <CardDescription>
-                  You have 3 new activities today
-                </CardDescription>
+                <CardDescription>You have 3 new activities today</CardDescription>
               </CardHeader>
               <CardContent>
                 <Table>
@@ -322,21 +297,16 @@ export default function AdminDashboard() {
                         date: "2023-06-13",
                       },
                     ].map((item, index) => (
-                      <TableRow
-                        key={index}
-                        className="hover:bg-gray-50 transition-colors duration-200"
-                      >
-                        <TableCell className="font-medium">
-                          {item.activity}
-                        </TableCell>
+                      <TableRow key={index} className="hover:bg-gray-50 transition-colors duration-200">
+                        <TableCell className="font-medium">{item.activity}</TableCell>
                         <TableCell>
                           <span
                             className={`px-2 py-1 rounded-full text-xs font-semibold transition-all duration-300 hover:scale-105 ${
                               item.status === "Completed"
                                 ? "bg-green-100 text-green-800"
                                 : item.status === "In Progress"
-                                ? "bg-blue-100 text-blue-800"
-                                : "bg-yellow-100 text-yellow-800"
+                                  ? "bg-blue-100 text-blue-800"
+                                  : "bg-yellow-100 text-yellow-800"
                             }`}
                           >
                             {item.status}
@@ -384,5 +354,5 @@ export default function AdminDashboard() {
         </main>
       </div>
     </div>
-  );
+  )
 }
