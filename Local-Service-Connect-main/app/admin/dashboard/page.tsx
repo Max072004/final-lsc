@@ -331,21 +331,42 @@ export default function AdminDashboard() {
 
             {/* Quick actions */}
             <div className="mt-8">
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-4">
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-6">
                 Quick Actions
               </h2>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {[
-                  { title: "Add New Service", icon: ArrowRight },
-                  { title: "Review Worker Applications", icon: ArrowRight },
-                  { title: "Generate Monthly Report", icon: ArrowRight },
+                  { 
+                    title: "Add New Service", 
+                    icon: ArrowRight,
+                    description: "Create and publish new service offerings",
+                    color: "from-indigo-600 to-purple-600"
+                  },
+                  { 
+                    title: "Review Worker Applications", 
+                    icon: ArrowRight,
+                    description: "Manage and approve worker registrations",
+                    color: "from-blue-600 to-cyan-600"
+                  },
+                  { 
+                    title: "Generate Monthly Report", 
+                    icon: ArrowRight,
+                    description: "Download detailed performance analytics",
+                    color: "from-emerald-600 to-teal-600"
+                  },
                 ].map((action, index) => (
                   <Button
                     key={index}
-                    className="w-full justify-between bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white transform hover:scale-105 transition-all duration-300"
+                    className={`w-full flex flex-col items-start p-6 bg-gradient-to-r ${action.color} text-white hover:opacity-90 transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl rounded-2xl font-semibold relative overflow-hidden group`}
                   >
-                    {action.title}
-                    <action.icon className="ml-2 h-4 w-4 animate-bounce" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                    <div className="relative w-full">
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className="text-lg font-bold">{action.title}</h3>
+                        <action.icon className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
+                      </div>
+                      <p className="text-sm text-white/80">{action.description}</p>
+                    </div>
                   </Button>
                 ))}
               </div>
