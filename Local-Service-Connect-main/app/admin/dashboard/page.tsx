@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
-import { ArrowRight, Users, Briefcase, DollarSign, Calendar, Settings, Menu } from "lucide-react"
+import { ArrowRight, Users, Briefcase, IndianRupee, Calendar, Settings, Menu } from "lucide-react"
 import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
@@ -16,19 +16,21 @@ import { useRouter } from "next/navigation"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 
+const USD_TO_INR = 83 // 1 USD = 83 INR
+
 const data = [
-  { name: "Jan", total: Math.floor(Math.random() * 5000) + 1000 },
-  { name: "Feb", total: Math.floor(Math.random() * 5000) + 1000 },
-  { name: "Mar", total: Math.floor(Math.random() * 5000) + 1000 },
-  { name: "Apr", total: Math.floor(Math.random() * 5000) + 1000 },
-  { name: "May", total: Math.floor(Math.random() * 5000) + 1000 },
-  { name: "Jun", total: Math.floor(Math.random() * 5000) + 1000 },
-  { name: "Jul", total: Math.floor(Math.random() * 5000) + 1000 },
-  { name: "Aug", total: Math.floor(Math.random() * 5000) + 1000 },
-  { name: "Sep", total: Math.floor(Math.random() * 5000) + 1000 },
-  { name: "Oct", total: Math.floor(Math.random() * 5000) + 1000 },
-  { name: "Nov", total: Math.floor(Math.random() * 5000) + 1000 },
-  { name: "Dec", total: Math.floor(Math.random() * 5000) + 1000 },
+  { name: "Jan", total: (Math.floor(Math.random() * 5000) + 1000) * USD_TO_INR },
+  { name: "Feb", total: (Math.floor(Math.random() * 5000) + 1000) * USD_TO_INR },
+  { name: "Mar", total: (Math.floor(Math.random() * 5000) + 1000) * USD_TO_INR },
+  { name: "Apr", total: (Math.floor(Math.random() * 5000) + 1000) * USD_TO_INR },
+  { name: "May", total: (Math.floor(Math.random() * 5000) + 1000) * USD_TO_INR },
+  { name: "Jun", total: (Math.floor(Math.random() * 5000) + 1000) * USD_TO_INR },
+  { name: "Jul", total: (Math.floor(Math.random() * 5000) + 1000) * USD_TO_INR },
+  { name: "Aug", total: (Math.floor(Math.random() * 5000) + 1000) * USD_TO_INR },
+  { name: "Sep", total: (Math.floor(Math.random() * 5000) + 1000) * USD_TO_INR },
+  { name: "Oct", total: (Math.floor(Math.random() * 5000) + 1000) * USD_TO_INR },
+  { name: "Nov", total: (Math.floor(Math.random() * 5000) + 1000) * USD_TO_INR },
+  { name: "Dec", total: (Math.floor(Math.random() * 5000) + 1000) * USD_TO_INR },
 ]
 
 export default function AdminDashboard() {
@@ -184,8 +186,8 @@ export default function AdminDashboard() {
                 },
                 {
                   title: "Total Revenue",
-                  icon: DollarSign,
-                  value: "$45,231.89",
+                  icon: IndianRupee,
+                  value: `₹${(45231.89 * USD_TO_INR).toLocaleString("en-IN")}`,
                   change: "+20%",
                   color: "from-purple-500 to-purple-600",
                 },
@@ -237,7 +239,7 @@ export default function AdminDashboard() {
                         fontSize={12}
                         tickLine={false}
                         axisLine={false}
-                        tickFormatter={(value) => `$${value}`}
+                        tickFormatter={(value) => `₹${value.toLocaleString("en-IN")}`}
                       />
                       <ChartTooltip
                         cursor={{ fill: "rgba(99, 102, 241, 0.1)" }}
