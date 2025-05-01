@@ -19,12 +19,19 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 
 export default function LandingPage() {
   const router = useRouter()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [scrollY, setScrollY] = useState(0)
   const [currentUser, setCurrentUser] = useState(null)
+  const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false)
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
@@ -138,6 +145,10 @@ export default function LandingPage() {
     "Your One-Stop Solution for Home Services!",
   ]
 
+  const handleProfileClick = () => {
+    setIsProfileDialogOpen(true)
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-purple-100 to-indigo-200 text-gray-800">
       <ToastContainer />
@@ -213,7 +224,7 @@ export default function LandingPage() {
                     <div className="bg-white p-2">
                       <DropdownMenuItem
                         className="cursor-pointer flex items-center space-x-2 hover:bg-purple-50 rounded-md transition-colors duration-200 py-2.5"
-                        onClick={() => router.push("/profile")}
+                        onClick={handleProfileClick}
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -248,14 +259,6 @@ export default function LandingPage() {
                       >
                         <CreditCard className="h-4 w-4 text-indigo-600" />
                         <span>Subscription Plans</span>
-                      </DropdownMenuItem>
-
-                      <DropdownMenuItem
-                        className="cursor-pointer flex items-center space-x-2 hover:bg-purple-50 rounded-md transition-colors duration-200 py-2.5"
-                        onClick={() => router.push("/change-password")}
-                      >
-                        <KeyRound className="h-4 w-4 text-indigo-600" />
-                        <span>Change Password</span>
                       </DropdownMenuItem>
 
                       <DropdownMenuSeparator className="my-1 h-px bg-gray-200" />
@@ -320,25 +323,25 @@ export default function LandingPage() {
             </button>
 
             {currentUser ? (
-              <div className="flex flex-col items-center space-y-3 pt-3 pb-2 border-t border-white/20 w-full">
-                <div className="flex items-center space-x-2">
-                  <Avatar className="h-10 w-10 border-2 border-white/50 ring-2 ring-purple-600/20">
+              <div className="flex flex-col items-center space-y-4 pt-4 pb-3 border-t border-white/20 w-full">
+                <div className="flex items-center space-x-3">
+                  <Avatar className="h-12 w-12 border-2 border-white/50 ring-2 ring-purple-600/20 shadow-lg">
                     <AvatarImage src={currentUser.profilePic?.url || ""} alt={currentUser.name} />
-                    <AvatarFallback className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
+                    <AvatarFallback className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold">
                       {currentUser.name?.charAt(0) || "U"}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col">
-                    <span className="text-white text-sm font-medium">{currentUser.name}</span>
-                    <span className="text-purple-100 text-xs">{currentUser.email}</span>
+                    <span className="text-white text-sm font-semibold tracking-wide">{currentUser.name}</span>
+                    <span className="text-purple-100/90 text-xs">{currentUser.email}</span>
                   </div>
                 </div>
-                <div className="flex flex-col w-full px-6 space-y-2">
+                <div className="flex flex-col w-full px-6 space-y-3">
                   <Button
                     variant="outline"
                     size="sm"
-                    className="bg-white/10 hover:bg-white/20 border-white/30 text-white justify-start"
-                    onClick={() => router.push("/profile")}
+                    className="bg-white/10 hover:bg-white/20 border-white/30 text-white justify-start transition-all duration-300 hover:scale-[1.02]"
+                    onClick={handleProfileClick}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -360,7 +363,7 @@ export default function LandingPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="bg-white/10 hover:bg-white/20 border-white/30 text-white justify-start"
+                    className="bg-white/10 hover:bg-white/20 border-white/30 text-white justify-start transition-all duration-300 hover:scale-[1.02]"
                     onClick={handlePlansClick}
                   >
                     <CreditCard className="h-4 w-4 mr-2" />
@@ -370,7 +373,7 @@ export default function LandingPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="bg-white/10 hover:bg-white/20 border-white/30 text-white justify-start"
+                    className="bg-white/10 hover:bg-white/20 border-white/30 text-white justify-start transition-all duration-300 hover:scale-[1.02]"
                     onClick={() => router.push("/change-password")}
                   >
                     <KeyRound className="h-4 w-4 mr-2" />
@@ -380,7 +383,7 @@ export default function LandingPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="bg-white/10 hover:bg-white/20 border-white/30 text-white justify-start"
+                    className="bg-white/10 hover:bg-white/20 border-white/30 text-white justify-start transition-all duration-300 hover:scale-[1.02]"
                     onClick={handlelogout}
                   >
                     <svg
@@ -402,8 +405,9 @@ export default function LandingPage() {
                 </div>
               </div>
             ) : (
-              <AnimatedButton className="group animate-rainbow text-white hover:text-purple-200">
-                <span>Login</span>
+              <AnimatedButton className="group animate-rainbow text-white hover:text-purple-200 font-semibold tracking-wide">
+                <span className="relative z-10">Login</span>
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-indigo-600/20 group-hover:from-purple-600/30 group-hover:to-indigo-600/30 transition-all duration-300"></div>
               </AnimatedButton>
             )}
           </nav>
@@ -608,6 +612,73 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
+
+      <Dialog open={isProfileDialogOpen} onOpenChange={setIsProfileDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Profile Settings</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="flex flex-col space-y-4">
+              <div className="flex justify-center">
+                <Avatar className="h-24 w-24 border-2 border-purple-500">
+                  <AvatarImage src={currentUser?.profilePic?.url || ""} alt={currentUser?.name} />
+                  <AvatarFallback className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xl">
+                    {currentUser?.name?.charAt(0) || "U"}
+                  </AvatarFallback>
+                </Avatar>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Name</label>
+                  <input
+                    type="text"
+                    value={currentUser?.name || ""}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                    disabled
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Email</label>
+                  <input
+                    type="email"
+                    value={currentUser?.email || ""}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                    disabled
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">Change Password</label>
+                  <input
+                    type="password"
+                    placeholder="Current Password"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                  />
+                  <input
+                    type="password"
+                    placeholder="New Password"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                  />
+                  <input
+                    type="password"
+                    placeholder="Confirm New Password"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                  />
+                  <Button
+                    className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white hover:from-purple-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl py-2 rounded-lg font-semibold relative overflow-hidden group"
+                    onClick={() => router.push("/change-password")}
+                  >
+                    <span className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></span>
+                    <span className="relative">Update Password</span>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
