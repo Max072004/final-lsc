@@ -1,62 +1,88 @@
-"use client";
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { HoverEffect } from "@/components/HoverEffect";
-import { FlipWords } from "@/components/FlipWords";
-import AnimatedButton from "@/components/AnimatedButton";
-import { Menu, X } from "lucide-react";
-import { useRouter } from "next/navigation";
-import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+"use client"
+import { useState, useEffect } from "react"
+import Link from "next/link"
+import { motion } from "framer-motion"
+import { Button } from "@/components/ui/button"
+import { HoverEffect } from "@/components/HoverEffect"
+import { FlipWords } from "@/components/FlipWords"
+import AnimatedButton from "@/components/AnimatedButton"
+import { Menu, X, CreditCard, KeyRound } from "lucide-react"
+import { useRouter } from "next/navigation"
+import axios from "axios"
+import { toast, ToastContainer } from "react-toastify"
+import "react-toastify/dist/ReactToastify.css"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 
 export default function LandingPage() {
-  const router = useRouter();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [scrollY, setScrollY] = useState(0);
+  const router = useRouter()
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [scrollY, setScrollY] = useState(0)
+  const [currentUser, setCurrentUser] = useState(null)
+  const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false)
 
   const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
+    setIsMenuOpen(!isMenuOpen)
+  }
 
   const scrollToSection = (sectionId: string) => {
-    const section = document.getElementById(sectionId);
+    const section = document.getElementById(sectionId)
     if (section) {
-      section.scrollIntoView({ behavior: "smooth" });
+      section.scrollIntoView({ behavior: "smooth" })
     }
-    setIsMenuOpen(false);
-  };
+    setIsMenuOpen(false)
+  }
 
   useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+    const handleScroll = () => setScrollY(window.scrollY)
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
 
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth > 768) {
-        setIsMenuOpen(false);
+        setIsMenuOpen(false)
       }
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-  const user = localStorage.getItem("user");
-  let storedUser = null;
-
-  try {
-    if (user && user !== "undefined") {
-      storedUser = JSON.parse(user);
     }
-  } catch (error) {
-    console.error("Failed to parse user JSON:", error);
+
+    window.addEventListener("resize", handleResize)
+    return () => window.removeEventListener("resize", handleResize)
+  }, [])
+
+  useEffect(() => {
+    // Get user from localStorage
+    const user = localStorage.getItem("user")
+    try {
+      if (user && user !== "undefined") {
+        const parsedUser = JSON.parse(user)
+        setCurrentUser(parsedUser)
+      }
+    } catch (error) {
+      console.error("Failed to parse user JSON:", error)
+    }
+  }, [])
+
+  const handlePlansClick = () => {
+    if (currentUser?.role === "worker") {
+      router.push("/worker-subscription")
+    } else {
+      router.push("/customer-subscription")
+    }
   }
 
-  console.log("stored user ", storedUser);
   const services = [
     {
       title: "Plumbing",
@@ -65,8 +91,7 @@ export default function LandingPage() {
     },
     {
       title: "Electrical",
-      description:
-        "Professional electrical work to keep your home powered and safe.",
+      description: "Professional electrical work to keep your home powered and safe.",
       link: "/services/electrician",
     },
     {
@@ -76,51 +101,53 @@ export default function LandingPage() {
     },
     {
       title: "Carpentry",
-      description:
-        "Skilled carpentry for repairs, renovations, and custom projects.",
+      description: "Skilled carpentry for repairs, renovations, and custom projects.",
       link: "/services/carpenter",
     },
     {
       title: "Painting",
-      description:
-        "Transform your space with our professional painting services.",
+      description: "Transform your space with our professional painting services.",
       link: "/services/painting",
     },
     {
       title: "Gardening",
-      description:
-        "Keep your outdoor areas beautiful with our gardening expertise.",
+      description: "Keep your outdoor areas beautiful with our gardening expertise.",
       link: "/services/gardening",
     },
-  ];
+  ]
+
   const handlelogout = async () => {
     try {
-      const response = await axios.get(
-        `https://major-backend-f0nm.onrender.com/api/v1/users/logout`,
-        { withCredentials: true }
-      );
+      const response = await axios.get(`https://major-backend-f0nm.onrender.com/api/v1/users/logout`, {
+        withCredentials: true,
+      })
 
       if (response?.data?.success) {
-        localStorage.removeItem("user");
-        toast.success("Logout done");
+        localStorage.removeItem("user")
+        setCurrentUser(null)
+        toast.success("Logout done")
         setTimeout(() => {
-          window.location.reload();
-        }, 500);
+          window.location.reload()
+        }, 500)
       } else {
-        toast.error("Logout failed: Invalid response");
+        toast.error("Logout failed: Invalid response")
       }
     } catch (error) {
-      console.error("Logout error: ", error);
-      toast.error("Logout failed: Network or server error");
+      console.error("Logout error: ", error)
+      toast.error("Logout failed: Network or server error")
     }
-  };
+  }
 
   const flipWords = [
     "Connecting You to Trusted Local Experts!",
     "Quick, Reliable, and Hassle-Free Home Services!",
     "Find. Hire. Get It Done!",
     "Your One-Stop Solution for Home Services!",
-  ];
+  ]
+
+  const handleProfileClick = () => {
+    setIsProfileDialogOpen(true)
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-purple-100 to-indigo-200 text-gray-800">
@@ -157,15 +184,109 @@ export default function LandingPage() {
               Contact
             </button>
           </nav>
-          <div className="hidden md:block">
-            {storedUser ? (
-              <Button
-                onClick={handlelogout}
-                className="relative overflow-hidden group bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold px-6 py-2.5 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
-              >
-                <span className="relative z-10">Logout</span>
-                <div className="absolute inset-0 bg-white/20 group-hover:bg-white/30 transition-colors duration-300"></div>
-              </Button>
+          <div className="hidden md:flex items-center space-x-4">
+            {currentUser ? (
+              <div className="flex items-center space-x-3">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="flex items-center space-x-2 bg-white/10 hover:bg-white/20 transition-all duration-300 rounded-full pl-3 pr-2 py-1.5 border border-white/30 shadow-lg hover:shadow-indigo-500/20">
+                      <span className="text-white text-sm font-medium">{currentUser.name}</span>
+                      <Avatar className="h-8 w-8 border-2 border-white/50 ring-2 ring-purple-600/20">
+                        <AvatarImage src={currentUser.profilePic?.url || ""} alt={currentUser.name} />
+                        <AvatarFallback className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
+                          {currentUser.name?.charAt(0) || "U"}
+                        </AvatarFallback>
+                      </Avatar>
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="end"
+                    className="w-64 p-0 overflow-hidden border-none shadow-xl rounded-xl"
+                  >
+                    <div className="bg-gradient-to-r from-purple-500 to-indigo-600 p-4">
+                      <div className="flex items-center space-x-3">
+                        <Avatar className="h-12 w-12 border-2 border-white/70 ring-2 ring-purple-600/20 shadow-lg">
+                          <AvatarImage src={currentUser.profilePic?.url || ""} alt={currentUser.name} />
+                          <AvatarFallback className="bg-white text-indigo-600 font-semibold">
+                            {currentUser.name?.charAt(0) || "U"}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="text-white font-medium text-base">{currentUser.name}</p>
+                          <p className="text-purple-100 text-xs">{currentUser.email}</p>
+                        </div>
+                      </div>
+                      <div className="mt-3 bg-white/20 rounded-md px-2 py-1 inline-block">
+                        <p className="text-xs text-white capitalize font-medium">{currentUser.role}</p>
+                      </div>
+                    </div>
+
+                    <div className="bg-white p-2">
+                      <DropdownMenuItem
+                        className="cursor-pointer flex items-center space-x-2 hover:bg-purple-50 rounded-md transition-colors duration-200 py-2.5"
+                        onClick={handleProfileClick}
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4 text-indigo-600"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                          />
+                        </svg>
+                        <span>Profile Settings</span>
+                      </DropdownMenuItem>
+
+                      <DropdownMenuItem
+                        className="cursor-pointer flex items-center space-x-2 hover:bg-purple-50 rounded-md transition-colors duration-200 py-2.5"
+                        onClick={() => {
+                          const user = localStorage.getItem("user");
+                          if (user) {
+                            const parsedUser = JSON.parse(user);
+                            if (parsedUser.role === "worker") {
+                              router.push("/plans/worker");
+                            } else {
+                              router.push("/plans/customer");
+                            }
+                          }
+                        }}
+                      >
+                        <CreditCard className="h-4 w-4 text-indigo-600" />
+                        <span>Subscription Plans</span>
+                      </DropdownMenuItem>
+
+                      <DropdownMenuSeparator className="my-1 h-px bg-gray-200" />
+
+                      <DropdownMenuItem
+                        className="cursor-pointer flex items-center space-x-2 hover:bg-red-50 rounded-md transition-colors duration-200 py-2.5 text-red-500"
+                        onClick={handlelogout}
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                          />
+                        </svg>
+                        <span>Logout</span>
+                      </DropdownMenuItem>
+                    </div>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             ) : (
               <AnimatedButton className="relative overflow-hidden group bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold px-6 py-2.5 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
                 <span className="relative z-10">Login</span>
@@ -200,9 +321,95 @@ export default function LandingPage() {
             >
               Contact
             </button>
-            <AnimatedButton className="group animate-rainbow text-white hover:text-purple-200">
-              <span>Login</span>
-            </AnimatedButton>
+
+            {currentUser ? (
+              <div className="flex flex-col items-center space-y-4 pt-4 pb-3 border-t border-white/20 w-full">
+                <div className="flex items-center space-x-3">
+                  <Avatar className="h-12 w-12 border-2 border-white/50 ring-2 ring-purple-600/20 shadow-lg">
+                    <AvatarImage src={currentUser.profilePic?.url || ""} alt={currentUser.name} />
+                    <AvatarFallback className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold">
+                      {currentUser.name?.charAt(0) || "U"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-col">
+                    <span className="text-white text-sm font-semibold tracking-wide">{currentUser.name}</span>
+                    <span className="text-purple-100/90 text-xs">{currentUser.email}</span>
+                  </div>
+                </div>
+                <div className="flex flex-col w-full px-6 space-y-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="bg-white/10 hover:bg-white/20 border-white/30 text-white justify-start transition-all duration-300 hover:scale-[1.02]"
+                    onClick={handleProfileClick}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4 mr-2"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                      />
+                    </svg>
+                    Profile Settings
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="bg-white/10 hover:bg-white/20 border-white/30 text-white justify-start transition-all duration-300 hover:scale-[1.02]"
+                    onClick={handlePlansClick}
+                  >
+                    <CreditCard className="h-4 w-4 mr-2" />
+                    Subscription Plans
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="bg-white/10 hover:bg-white/20 border-white/30 text-white justify-start transition-all duration-300 hover:scale-[1.02]"
+                    onClick={() => router.push("/change-password")}
+                  >
+                    <KeyRound className="h-4 w-4 mr-2" />
+                    Change Password
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="bg-white/10 hover:bg-white/20 border-white/30 text-white justify-start transition-all duration-300 hover:scale-[1.02]"
+                    onClick={handlelogout}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4 mr-2"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                      />
+                    </svg>
+                    Logout
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <AnimatedButton className="group animate-rainbow text-white hover:text-purple-200 font-semibold tracking-wide">
+                <span className="relative z-10">Login</span>
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-indigo-600/20 group-hover:from-purple-600/30 group-hover:to-indigo-600/30 transition-all duration-300"></div>
+              </AnimatedButton>
+            )}
           </nav>
         </div>
       )}
@@ -233,8 +440,7 @@ export default function LandingPage() {
                 transition={{ duration: 0.8, delay: 0.2 }}
                 className="mt-5 max-w-xl mx-auto text-xl text-indigo-700"
               >
-                Connect with skilled local professionals for all your home
-                service needs.
+                Connect with skilled local professionals for all your home service needs.
               </motion.p>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -255,10 +461,7 @@ export default function LandingPage() {
           <div className="absolute inset-0 bg-gradient-to-br from-purple-200 to-indigo-300 opacity-50"></div>
         </motion.section>
 
-        <section
-          id="services"
-          className="py-16 bg-gradient-to-br from-purple-100 to-indigo-200"
-        >
+        <section id="services" className="py-16 bg-gradient-to-br from-purple-100 to-indigo-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
@@ -272,10 +475,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section
-          id="how-it-works"
-          className="bg-gradient-to-br from-purple-300 to-indigo-400 py-16"
-        >
+        <section id="how-it-works" className="bg-gradient-to-br from-purple-300 to-indigo-400 py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
@@ -297,18 +497,15 @@ export default function LandingPage() {
               {[
                 {
                   title: "Book a Service",
-                  description:
-                    "Choose the service you need and select a convenient time.",
+                  description: "Choose the service you need and select a convenient time.",
                 },
                 {
                   title: "Get Matched",
-                  description:
-                    "We'll connect you with a skilled local professional.",
+                  description: "We'll connect you with a skilled local professional.",
                 },
                 {
                   title: "Job Done",
-                  description:
-                    "Your service provider arrives and completes the job to your satisfaction.",
+                  description: "Your service provider arrives and completes the job to your satisfaction.",
                 },
               ].map((step, index) => (
                 <motion.div
@@ -328,22 +525,15 @@ export default function LandingPage() {
                       {index + 1}
                     </div>
                   </motion.div>
-                  <h3 className="text-xl font-semibold text-indigo-900 mb-2 text-center">
-                    {step.title}
-                  </h3>
-                  <p className="text-indigo-700 text-center">
-                    {step.description}
-                  </p>
+                  <h3 className="text-xl font-semibold text-indigo-900 mb-2 text-center">{step.title}</h3>
+                  <p className="text-indigo-700 text-center">{step.description}</p>
                 </motion.div>
               ))}
             </div>
           </div>
         </section>
 
-        <section
-          id="contact"
-          className="py-16 bg-gradient-to-br from-purple-100 to-indigo-200"
-        >
+        <section id="contact" className="py-16 bg-gradient-to-br from-purple-100 to-indigo-200">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
@@ -361,10 +551,7 @@ export default function LandingPage() {
             >
               <form className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label
-                    htmlFor="name"
-                    className="block text-sm font-medium mb-1 text-indigo-700"
-                  >
+                  <label htmlFor="name" className="block text-sm font-medium mb-1 text-indigo-700">
                     Name
                   </label>
                   <input
@@ -375,10 +562,7 @@ export default function LandingPage() {
                   />
                 </div>
                 <div>
-                  <label
-                    htmlFor="email"
-                    className="block text-sm font-medium mb-1 text-indigo-700"
-                  >
+                  <label htmlFor="email" className="block text-sm font-medium mb-1 text-indigo-700">
                     Email
                   </label>
                   <input
@@ -389,10 +573,7 @@ export default function LandingPage() {
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <label
-                    htmlFor="message"
-                    className="block text-sm font-medium mb-1 text-indigo-700"
-                  >
+                  <label htmlFor="message" className="block text-sm font-medium mb-1 text-indigo-700">
                     Message
                   </label>
                   <textarea
@@ -419,26 +600,85 @@ export default function LandingPage() {
       <footer className="bg-gradient-to-r from-purple-400 to-indigo-500 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-white mb-4 md:mb-0">
-              &copy; 2025 LOCAL SERVICE CONNECT. All rights reserved.
-            </p>
+            <p className="text-white mb-4 md:mb-0">&copy; 2025 LOCAL SERVICE CONNECT. All rights reserved.</p>
             <div className="flex space-x-6">
-              <Link
-                href="#"
-                className="text-white hover:text-purple-200 transition-colors duration-300"
-              >
+              <Link href="#" className="text-white hover:text-purple-200 transition-colors duration-300">
                 Privacy Policy
               </Link>
-              <Link
-                href="#"
-                className="text-white hover:text-purple-200 transition-colors duration-300"
-              >
+              <Link href="#" className="text-white hover:text-purple-200 transition-colors duration-300">
                 Terms of Service
               </Link>
             </div>
           </div>
         </div>
       </footer>
+
+      <Dialog open={isProfileDialogOpen} onOpenChange={setIsProfileDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Profile Settings</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="flex flex-col space-y-4">
+              <div className="flex justify-center">
+                <Avatar className="h-24 w-24 border-2 border-purple-500">
+                  <AvatarImage src={currentUser?.profilePic?.url || ""} alt={currentUser?.name} />
+                  <AvatarFallback className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xl">
+                    {currentUser?.name?.charAt(0) || "U"}
+                  </AvatarFallback>
+                </Avatar>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Name</label>
+                  <input
+                    type="text"
+                    value={currentUser?.name || ""}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                    disabled
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Email</label>
+                  <input
+                    type="email"
+                    value={currentUser?.email || ""}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                    disabled
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">Change Password</label>
+                  <input
+                    type="password"
+                    placeholder="Current Password"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                  />
+                  <input
+                    type="password"
+                    placeholder="New Password"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                  />
+                  <input
+                    type="password"
+                    placeholder="Confirm New Password"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                  />
+                  <Button
+                    className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white hover:from-purple-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl py-2 rounded-lg font-semibold relative overflow-hidden group"
+                    onClick={() => router.push("/change-password")}
+                  >
+                    <span className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></span>
+                    <span className="relative">Update Password</span>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
-  );
+  )
 }
