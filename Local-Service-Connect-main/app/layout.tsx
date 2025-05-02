@@ -1,8 +1,14 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import { IconFavicon } from '@tabler/icons-react';
 
 export const metadata: Metadata = {
-  title: 'v0 App',
+  title: 'Local Service Connect',
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: '/favicon.ico',
+  },
   description: 'Created with v0',
   generator: 'v0.dev',
 }

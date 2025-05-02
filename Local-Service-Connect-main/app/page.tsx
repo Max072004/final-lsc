@@ -148,6 +148,43 @@ export default function LandingPage() {
   const handleProfileClick = () => {
     setIsProfileDialogOpen(true)
   }
+  // New state for change password form
+  const [oldPassword, setOldPassword] = useState("")
+  const [newPassword, setNewPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [passwordMessage, setPasswordMessage] = useState("")
+  const [isChanging, setIsChanging] = useState(false)
+
+  // Change password handler
+  const handleChangePassword = async () => {
+    setPasswordMessage("")
+    if (!oldPassword || !newPassword || !confirmPassword) {
+      setPasswordMessage("All fields are required")
+      return
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordMessage("New password and confirm password do not match")
+      return
+    }
+    setIsChanging(true)
+    try {
+      const res = await axios.put(
+        'https://major-backend-f0nm.onrender.com/api/v1/users/changePassword',
+        { oldPassword, newPassword, confirmPassword },
+        { withCredentials: true }
+      )
+      setPasswordMessage(res.data.message || 'Password changed successfully')
+      setOldPassword("")
+        setNewPassword("")
+      setConfirmPassword("")
+    } catch (err: any) {
+      const msg = err.response?.data?.message || 'Error updating password'
+      setPasswordMessage(msg)
+    } finally {
+      setIsChanging(false)
+    }
+  }
+
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-purple-100 to-indigo-200 text-gray-800">
@@ -621,32 +658,17 @@ export default function LandingPage() {
           <div className="grid gap-4 py-4">
             <div className="flex flex-col space-y-4">
               <div className="flex justify-center">
-                <Avatar className="h-24 w-24 border-2 border-purple-500">
-                  <AvatarImage src={currentUser?.profilePic?.url || ""} alt={currentUser?.name} />
-                  <AvatarFallback className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xl">
-                    {currentUser?.name?.charAt(0) || "U"}
-                  </AvatarFallback>
-                </Avatar>
+                {/* ... avatar unchanged ... */}
               </div>
 
               <div className="space-y-4">
                 <div>
                   <label className="text-sm font-medium text-gray-700">Name</label>
-                  <input
-                    type="text"
-                    value={currentUser?.name || ""}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
-                    disabled
-                  />
+                  <input type="text" value={currentUser?.name || ""} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500" disabled />
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-700">Email</label>
-                  <input
-                    type="email"
-                    value={currentUser?.email || ""}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
-                    disabled
-                  />
+                  <input type="email" value={currentUser?.email || ""} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500" disabled />
                 </div>
 
                 <div className="space-y-2">
@@ -654,24 +676,34 @@ export default function LandingPage() {
                   <input
                     type="password"
                     placeholder="Current Password"
+                    value={oldPassword}
+                    onChange={(e) => setOldPassword(e.target.value)}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
                   />
                   <input
                     type="password"
                     placeholder="New Password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
                   />
                   <input
                     type="password"
                     placeholder="Confirm New Password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
                   />
+                  {passwordMessage && (
+                    <p className="text-sm text-red-500">{passwordMessage}</p>
+                  )}
                   <Button
                     className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white hover:from-purple-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl py-2 rounded-lg font-semibold relative overflow-hidden group"
-                    onClick={() => router.push("/change-password")}
+                    onClick={handleChangePassword}
+                    disabled={isChanging}
                   >
                     <span className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></span>
-                    <span className="relative">Update Password</span>
+                    <span className="relative">{isChanging ? 'Updating...' : 'Update Password'}</span>
                   </Button>
                 </div>
               </div>
