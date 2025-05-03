@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { Settings, Menu, Trash2 } from "lucide-react"
 import Link from "next/link"
-
+import axios from "axios";
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { TableHead, TableRow, TableHeader, TableCell, TableBody, Table } from "@/components/ui/table"
@@ -15,7 +15,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 
 export default function WorkersPage() {
-  const [workers, setWorkers] = useState([]) // Ensuring it's always an array
+  const [workers, setWorkers] = useState([])
   const [selectedService, setSelectedService] = useState("All")
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -40,11 +40,11 @@ export default function WorkersPage() {
 
         if (!data.success || !Array.isArray(data.worker)) throw new Error("Invalid API response format")
 
-        setWorkers(data.worker) // Setting correct workers data
+        setWorkers(data.worker)
         setLoading(false)
       } catch (err) {
         setError(err.message)
-        setWorkers([]) // Ensuring no undefined errors
+        setWorkers([])
         setLoading(false)
       }
     }
@@ -52,28 +52,29 @@ export default function WorkersPage() {
     fetchWorkers()
   }, [])
 
-  const handleDeleteWorker = async (workerId) => {
-    if (window.confirm("Are you sure you want to delete this worker?")) {
-      try {
-        const response = await fetch(`https://major-backend-f0nm.onrender.com/api/v1/worker/delete/${workerId}`, {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        })
-
-        if (!response.ok) {
-          throw new Error("Failed to delete worker")
-        }
-
-        // Remove the deleted worker from the state
-        setWorkers(workers.filter((worker) => worker._id !== workerId))
-      } catch (error) {
-        console.error("Error deleting worker:", error)
-        alert("Failed to delete worker: " + error.message)
+  const handleDeleteWorker = async (workerId: string) => {
+    console.log("Attempting to delete worker with ID:", workerId); 
+    const confirmDelete = window.confirm("Are you sure you want to delete this worker?");
+    if (!confirmDelete) return;
+  
+    try {
+      const deleteUrl = `https://major-backend-f0nm.onrender.com/api/v1/users/delete/${workerId}`;
+      console.log("Delete URL:", deleteUrl); 
+      const response = await axios.delete(deleteUrl, {
+        withCredentials: true,
+      });
+  
+      if (response.data.success) {
+        setWorkers((prevWorkers) => prevWorkers.filter((worker) => worker._id !== workerId));
+        alert("Worker deleted successfully!");
+      } else {
+        throw new Error(response.data.message || "Failed to delete worker.");
       }
+    } catch (error: any) {
+      console.error("Delete error:", error);
+      alert("Failed to delete worker: " + (error.response?.data?.message || error.message));
     }
-  }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("user")
@@ -83,10 +84,8 @@ export default function WorkersPage() {
   const filteredWorkers =
     selectedService === "All" ? workers : workers.filter((worker) => worker.serviceType.includes(selectedService))
 
-  // Calculate total workers
   const totalWorkers = workers.length
 
-  // Calculate average rating safely
   const averageRating =
     workers.length > 0
       ? (workers.reduce((sum, worker) => sum + (worker.rating || 0), 0) / workers.length).toFixed(1)
@@ -98,7 +97,6 @@ export default function WorkersPage() {
         <h2 className="text-xl font-bold text-white">Admin Panel</h2>
       </div>
 
-      {/* Admin Profile Section */}
       {adminUser && (
         <div className="px-4 py-3 bg-gray-800/50 mb-4">
           <div className="flex items-center space-x-3">

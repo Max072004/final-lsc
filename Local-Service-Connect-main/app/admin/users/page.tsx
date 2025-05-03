@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import Image from "next/image"
 import { Settings, Menu, Trash2 } from "lucide-react"
 import Link from "next/link"
-
+import axios from "axios"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { TableHead, TableRow, TableHeader, TableCell, TableBody, Table } from "@/components/ui/table"
@@ -20,34 +20,31 @@ export default function UsersPage() {
   const [adminUser, setAdminUser] = useState(null)
 
   useEffect(() => {
-    // Get admin user from localStorage
-    const user = localStorage.getItem("user")
-    if (user) {
-      const parsedUser = JSON.parse(user)
-      if (parsedUser.role === "admin") {
-        setAdminUser(parsedUser)
-      }
+    const storedUser = localStorage.getItem("user")
+    if (storedUser) {
+      const parsed = JSON.parse(storedUser)
+      if (parsed.role === "admin") setAdminUser(parsed)
     }
 
     const fetchUsers = async () => {
       try {
-        const response = await fetch("https://major-backend-f0nm.onrender.com/api/v1/users/getalluser")
-        if (!response.ok) {
-          throw new Error("Failed to fetch users")
-        }
-        const data = await response.json()
+        const res = await fetch("https://major-backend-f0nm.onrender.com/api/v1/users/getalluser")
+        if (!res.ok) throw new Error("Failed to fetch users")
 
-        if (Array.isArray(data?.users)) {
-          const customers = data.users.filter((user) => user.role === "customer")
-          setUsers(customers)
-        } else {
-          console.error("API response.users is not an array:", data)
-          setError("Invalid API response")
-          setUsers([])
+        const data = await res.json()
+        const customers = Array.isArray(data?.users)
+          ? data.users.filter((u) => u.role === "customer")
+          : []
+
+        if (!Array.isArray(data?.users)) {
+          console.error("Invalid users data format")
+          setError("Unexpected response structure")
         }
-      } catch (error) {
-        setError(error.message)
-        setUsers([])
+
+        setUsers(customers)
+      } catch (err) {
+        console.error("Fetch error:", err)
+        setError(err.message)
       } finally {
         setLoading(false)
       }
@@ -56,28 +53,32 @@ export default function UsersPage() {
     fetchUsers()
   }, [])
 
-  const handleDeleteUser = async (userId) => {
-    if (window.confirm("Are you sure you want to delete this user?")) {
-      try {
-        const response = await fetch(`https://major-backend-f0nm.onrender.com/api/v1/users/delete/${userId}`, {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        })
 
-        if (!response.ok) {
-          throw new Error("Failed to delete user")
-        }
+const handleDeleteUser = async (userId) => {
+  const confirm = window.confirm("Are you sure you want to delete this user?")
+  if (!confirm) return
 
-        // Remove the deleted user from the state
-        setUsers(users.filter((user) => user._id !== userId))
-      } catch (error) {
-        console.error("Error deleting user:", error)
-        alert("Failed to delete user: " + error.message)
+  try {
+    const res = await axios.delete(
+      `https://major-backend-f0nm.onrender.com/api/v1/users/delete/${userId}`,
+      {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+        },
       }
-    }
+    )
+
+    if (res.status !== 200) throw new Error("Failed to delete user")
+
+    setUsers((prevUsers) => prevUsers.filter((u) => u._id !== userId))
+    alert("User deleted successfully!") // ✅ Success message
+  } catch (err) {
+    console.error(err)
+    alert("Failed to delete user: " + err.message)
   }
+}
+
 
   const handleLogout = () => {
     localStorage.removeItem("user")
@@ -90,15 +91,16 @@ export default function UsersPage() {
         <h2 className="text-xl font-bold text-white">Admin Panel</h2>
       </div>
 
-      {/* Admin Profile Section */}
       {adminUser && (
         <div className="px-4 py-3 bg-gray-800/50 mb-4">
           <div className="flex items-center space-x-3">
             <Avatar className="h-10 w-10 border-2 border-indigo-500">
               <AvatarImage src={adminUser.profilePic?.url || ""} alt={adminUser.name} />
-              <AvatarFallback className="bg-indigo-600 text-white">{adminUser.name?.charAt(0) || "A"}</AvatarFallback>
+              <AvatarFallback className="bg-indigo-600 text-white">
+                {adminUser.name?.charAt(0) || "A"}
+              </AvatarFallback>
             </Avatar>
-            <div className="flex flex-col">
+            <div>
               <span className="text-sm font-medium text-white">{adminUser.name}</span>
               <span className="text-xs text-gray-400">{adminUser.email}</span>
             </div>
@@ -125,10 +127,10 @@ export default function UsersPage() {
         ))}
         <Button
           variant="ghost"
-          className="w-full justify-start rounded-none py-2 px-4 text-gray-200 transition-all duration-300 hover:bg-gradient-to-r hover:from-indigo-500/20 hover:to-purple-500/20 hover:text-white hover:translate-x-1"
+          onClick={handleLogout}
+          className="w-full justify-start rounded-none py-2 px-4 text-gray-200 hover:bg-red-600/20 hover:text-red-500"
         >
-          <Settings className="mr-2 h-4 w-4" />
-          Profile Settings
+          Logout
         </Button>
       </nav>
     </div>
@@ -170,7 +172,7 @@ export default function UsersPage() {
           </div>
         </header>
 
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-transparent">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <Card className="border-none shadow-md hover:shadow-lg transition-shadow">
               <CardHeader className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-t-lg">
@@ -180,7 +182,7 @@ export default function UsersPage() {
                 {loading ? (
                   <p>Loading users...</p>
                 ) : error ? (
-                  <p>Error: {error}</p>
+                  <p className="text-red-500">Error: {error}</p>
                 ) : (
                   <Table>
                     <TableHeader>
@@ -201,6 +203,7 @@ export default function UsersPage() {
                               alt={user.name}
                               width={50}
                               height={50}
+                              className="rounded-full"
                             />
                           </TableCell>
                           <TableCell className="font-medium">{user.name}</TableCell>
