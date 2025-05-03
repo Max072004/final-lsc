@@ -1,5 +1,5 @@
 "use client"
-import { useState, useEffect } from "react"
+import { useRef, useState, useEffect } from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
@@ -19,12 +19,8 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import emailjs from "@emailjs/browser"
 
 export default function LandingPage() {
   const router = useRouter()
@@ -32,6 +28,13 @@ export default function LandingPage() {
   const [scrollY, setScrollY] = useState(0)
   const [currentUser, setCurrentUser] = useState(null)
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false)
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    message: "",
+  })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const formRef = useRef(null)
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
@@ -169,22 +172,63 @@ export default function LandingPage() {
     setIsChanging(true)
     try {
       const res = await axios.put(
-        'https://major-backend-f0nm.onrender.com/api/v1/users/changePassword',
+        "https://major-backend-f0nm.onrender.com/api/v1/users/changePassword",
         { oldPassword, newPassword, confirmPassword },
-        { withCredentials: true }
+        { withCredentials: true },
       )
-      setPasswordMessage(res.data.message || 'Password changed successfully')
+      setPasswordMessage(res.data.message || "Password changed successfully")
       setOldPassword("")
-        setNewPassword("")
+      setNewPassword("")
       setConfirmPassword("")
     } catch (err: any) {
-      const msg = err.response?.data?.message || 'Error updating password'
+      const msg = err.response?.data?.message || "Error updating password"
       setPasswordMessage(msg)
     } finally {
       setIsChanging(false)
     }
   }
 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target
+
+    // Map form field names to state property names
+    const fieldToStateMap = {
+      from_name: "name",
+      reply_to: "email",
+      message: "message",
+    }
+
+    const stateProperty = fieldToStateMap[name] || name
+
+    setFormData((prev) => ({
+      ...prev,
+      [stateProperty]: value,
+    }))
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+
+    try {
+      const result = await emailjs.sendForm("service_o39avue", "template_8hbdqf6", formRef.current, "PYGdYrESNEKTv8WuZ")
+
+      console.log("Email sent successfully:", result.text)
+      toast.success("Message sent successfully!")
+
+      // Reset form
+      setFormData({
+        name: "",
+        email: "",
+        message: "",
+      })
+    } catch (error) {
+      console.error("Failed to send email:", error)
+      toast.error("Failed to send message. Please try again.")
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-purple-100 to-indigo-200 text-gray-800">
@@ -283,13 +327,13 @@ export default function LandingPage() {
                       <DropdownMenuItem
                         className="cursor-pointer flex items-center space-x-2 hover:bg-purple-50 rounded-md transition-colors duration-200 py-2.5"
                         onClick={() => {
-                          const user = localStorage.getItem("user");
+                          const user = localStorage.getItem("user")
                           if (user) {
-                            const parsedUser = JSON.parse(user);
+                            const parsedUser = JSON.parse(user)
                             if (parsedUser.role === "worker") {
-                              router.push("/plans/worker");
+                              router.push("/plans/worker")
                             } else {
-                              router.push("/plans/customer");
+                              router.push("/plans/customer")
                             }
                           }
                         }}
@@ -586,7 +630,7 @@ export default function LandingPage() {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="bg-white rounded-lg shadow-xl p-6 md:p-8"
             >
-              <form className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <form ref={formRef} onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium mb-1 text-indigo-700">
                     Name
@@ -594,8 +638,11 @@ export default function LandingPage() {
                   <input
                     type="text"
                     id="name"
-                    name="name"
+                    name="from_name"
+                    value={formData.name}
+                    onChange={handleInputChange}
                     className="w-full px-3 py-2 bg-purple-50 border border-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 text-indigo-900"
+                    required
                   />
                 </div>
                 <div>
@@ -605,8 +652,11 @@ export default function LandingPage() {
                   <input
                     type="email"
                     id="email"
-                    name="email"
+                    name="reply_to"
+                    value={formData.email}
+                    onChange={handleInputChange}
                     className="w-full px-3 py-2 bg-purple-50 border border-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 text-indigo-900"
+                    required
                   />
                 </div>
                 <div className="md:col-span-2">
@@ -616,16 +666,20 @@ export default function LandingPage() {
                   <textarea
                     id="message"
                     name="message"
+                    value={formData.message}
+                    onChange={handleInputChange}
                     rows={4}
                     className="w-full px-3 py-2 bg-purple-50 border border-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 text-indigo-900"
+                    required
                   ></textarea>
                 </div>
                 <div className="md:col-span-2">
                   <Button
                     type="submit"
+                    disabled={isSubmitting}
                     className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white hover:from-purple-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105"
                   >
-                    Send Message
+                    {isSubmitting ? "Sending..." : "Send Message"}
                   </Button>
                 </div>
               </form>
@@ -657,18 +711,26 @@ export default function LandingPage() {
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="flex flex-col space-y-4">
-              <div className="flex justify-center">
-                {/* ... avatar unchanged ... */}
-              </div>
+              <div className="flex justify-center">{/* ... avatar unchanged ... */}</div>
 
               <div className="space-y-4">
                 <div>
                   <label className="text-sm font-medium text-gray-700">Name</label>
-                  <input type="text" value={currentUser?.name || ""} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500" disabled />
+                  <input
+                    type="text"
+                    value={currentUser?.name || ""}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                    disabled
+                  />
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-700">Email</label>
-                  <input type="email" value={currentUser?.email || ""} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500" disabled />
+                  <input
+                    type="email"
+                    value={currentUser?.email || ""}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                    disabled
+                  />
                 </div>
 
                 <div className="space-y-2">
@@ -694,16 +756,14 @@ export default function LandingPage() {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
                   />
-                  {passwordMessage && (
-                    <p className="text-sm text-red-500">{passwordMessage}</p>
-                  )}
+                  {passwordMessage && <p className="text-sm text-red-500">{passwordMessage}</p>}
                   <Button
                     className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white hover:from-purple-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl py-2 rounded-lg font-semibold relative overflow-hidden group"
                     onClick={handleChangePassword}
                     disabled={isChanging}
                   >
                     <span className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></span>
-                    <span className="relative">{isChanging ? 'Updating...' : 'Update Password'}</span>
+                    <span className="relative">{isChanging ? "Updating..." : "Update Password"}</span>
                   </Button>
                 </div>
               </div>
