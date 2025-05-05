@@ -173,31 +173,25 @@ export default function AdminDashboard() {
                 {
                   title: "Total Users",
                   icon: Users,
-                  value: "1,234",
+                  value: "8",
                   change: "+10%",
                   color: "from-blue-500 to-blue-600",
                 },
                 {
                   title: "Active Workers",
                   icon: Briefcase,
-                  value: "567",
+                  value: "16",
                   change: "+5%",
                   color: "from-green-500 to-green-600",
                 },
                 {
                   title: "Total Revenue",
                   icon: IndianRupee,
-                  value: `₹${(45231.89 * USD_TO_INR).toLocaleString("en-IN")}`,
+                  value: `₹${(120.89 * USD_TO_INR).toLocaleString("en-IN")}`,
                   change: "+20%",
                   color: "from-purple-500 to-purple-600",
                 },
-                {
-                  title: "Completed Jobs",
-                  icon: Calendar,
-                  value: "789",
-                  change: "+12%",
-                  color: "from-pink-500 to-pink-600",
-                },
+                
               ].map((item, index) => (
                 <Card
                   key={index}
