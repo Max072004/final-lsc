@@ -12,10 +12,10 @@ import { motion } from "framer-motion";
 
 const serviceCategories = [
     { value: "plumbing", label: "Plumbing" },
-    { value: "electrical", label: "Electrical" },
+    { value: "electrician", label: "Electrical" },
     { value: "cleaning", label: "Cleaning" },
     { value: "painting", label: "Painting" },
-    { value: "carpentry", label: "Carpentry" },
+    { value: "carpenter", label: "Carpentry" },
     { value: "gardening", label: "Gardening" },
 ];
 
